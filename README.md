@@ -11,24 +11,6 @@ plain English.
 **Disclaimer:** Research / portfolio project. Not a medical device. Not
 for diagnosis.
 
-## Architecture
-
-```
-+---------------------+         +----------------------------+
-|  Next.js 15 (web/)  |  HTTPS  |  FastAPI (api/) on HF      |
-|  React 19, Tailwind |  ---->  |  Spaces (Docker, CPU)      |
-|  hosted on Vercel   |         |  - TF/Keras inference      |
-|                     |         |  - Saliency map (cv2 + tf) |
-|  /api/predict       |         |  - Gemini explanation call |
-|  /api/explain       |         +----------------------------+
-|     proxies                              ^
-+---------------------+                    |
-                                           |
-                            two trained models in api/models/
-                            xception.weights.h5    cnn_model.h5
-                            (trained via training/)
-```
-
 ## Repo layout
 
 | Path | What it is |
@@ -37,6 +19,27 @@ for diagnosis.
 | `api/` | FastAPI backend with TensorFlow inference + Gemini integration |
 | `training/` | Standalone training scripts. The dataset (~150 MB) lands at `training/data/Training` and `training/data/Testing` and is gitignored. Bootstrap it via `python download_dataset.py --out ./data` (needs a Kaggle API token). |
 | `notebooks/` | Original training notebook, kept for reference |
+
+## Models
+
+Three architectures are exposed in the UI; the user picks one before
+classifying:
+
+| Model | Backbone | Input | Saved as |
+|-------|----------|-------|----------|
+| Xception | Xception (ImageNet pretrained) + small dense head | 299x299 | `xception_model.weights.h5` (weights only) |
+| ResNet50V2 | ResNet50V2 (ImageNet pretrained) + same head | 299x299 | `resNet50V2.weights.h5` (weights only) |
+| Custom CNN | 4-block conv-pool stack trained from scratch | 224x224 | `cnn_model.h5` (full model) |
+
+All three use Adamax at lr 0.001. The two transfer-learning models share
+the same classifier head (`Flatten -> Dropout -> Dense(128) -> Dropout
+-> Dense(4)`) so they are a clean apples-to-apples comparison.
+
+If a weight file is missing, that model's slot is unavailable and the
+backend serves it in **stub mode** instead -- deterministic random
+predictions plus a placeholder Gaussian heatmap. The full pipeline
+(upload, predict, saliency render, Gemini explanation) still works in
+stub mode, which is what makes the app demo-able before training.
 
 ## Run locally
 
@@ -64,11 +67,8 @@ pnpm dev
 # open http://localhost:3000
 ```
 
-Without trained model files in `api/models/`, the backend runs in **stub
-mode** -- you still get a working UI with placeholder predictions, useful
-while the real models are training. To enable real predictions, drop
-`xception.weights.h5` and `cnn_model.h5` into `api/models/` (see
-`training/README.md` for how to produce them).
+Drop any combination of the three weight files into `api/models/` to
+enable real predictions for that model.
 
 ## Train models
 
@@ -78,19 +78,25 @@ The Kaggle Brain Tumor MRI Dataset (~150MB) lives at
 
 ```
 cd training
-python train_xception.py --output ../api/models/xception.weights.h5
+python train_xception.py --output ../api/models/xception_model.weights.h5
 python train_cnn.py --output ../api/models/cnn_model.h5
 ```
 
-Or use Colab for free GPU -- see `training/README.md`.
+The original notebook in `notebooks/` also trains ResNet50V2; recreate
+that cell or copy the `_build_resnet` body from `api/inference.py` into
+a `train_resnet.py` if you want a standalone script.
+
+Colab gives you a free T4 GPU and is the easiest way to retrain --
+see `training/README.md` for the cells.
 
 ## Deploy
 
 - **Frontend**: see `web/README.md`. Vercel, root directory `web/`, set
   `API_URL` env var to point at the backend.
 - **Backend**: see `api/README.md`. HuggingFace Spaces (Docker SDK), set
-  `GEMINI_API_KEY` and `CORS_ORIGINS` secrets. Upload the two `.h5` model
-  files into `models/`.
+  `GEMINI_API_KEY` and `CORS_ORIGINS` secrets. Upload the `.h5` model
+  files into the Space's `models/` folder via the Files tab; HF handles
+  Git LFS automatically.
 
 ## Stack
 
