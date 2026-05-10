@@ -16,6 +16,11 @@ const OPTIONS: { id: ModelId; label: string; sub: string }[] = [
     sub: "Transfer learning, ImageNet",
   },
   {
+    id: "resnet",
+    label: "ResNet50V2",
+    sub: "Transfer learning, ImageNet",
+  },
+  {
     id: "cnn",
     label: "Custom CNN",
     sub: "Trained from scratch",

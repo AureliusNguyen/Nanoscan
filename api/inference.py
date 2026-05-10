@@ -32,10 +32,13 @@ MODELS_DIR = Path(os.environ.get("MODELS_DIR", str(Path(__file__).parent / "mode
 class InvalidImageError(ValueError):
     """User-facing 'we could not read your image' error."""
 
-_XCEPTION_WEIGHTS = MODELS_DIR / "xception.weights.h5"
+
+_XCEPTION_WEIGHTS = MODELS_DIR / "xception_model.weights.h5"
+_RESNET_WEIGHTS = MODELS_DIR / "resNet50V2.weights.h5"
 _CNN_MODEL = MODELS_DIR / "cnn_model.h5"
 
 _xception_model = None
+_resnet_model = None
 _cnn_model = None
 _tf_loaded = False
 
@@ -59,18 +62,15 @@ def _lazy_import_tf():
     return tf
 
 
-def _build_xception(tf):
+def _build_classifier_head(tf, base, input_shape: tuple[int, int, int]):
+    """Wrap a backbone (Xception or ResNet50V2) in our standard classifier
+    head: Flatten -> Dropout -> Dense(128) -> Dropout -> Dense(4).
+    Matches the architecture in notebooks/Brain_Tumor_Classification.ipynb."""
     from tensorflow.keras.layers import Dense, Dropout, Flatten
     from tensorflow.keras.metrics import Precision, Recall
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.optimizers import Adamax
 
-    base = tf.keras.applications.Xception(
-        input_shape=(299, 299, 3),
-        include_top=False,
-        weights=None,
-        pooling="max",
-    )
     model = Sequential(
         [
             base,
@@ -81,7 +81,7 @@ def _build_xception(tf):
             Dense(len(CLASSES), activation="softmax"),
         ]
     )
-    model.build((None, 299, 299, 3))
+    model.build((None, *input_shape))
     model.compile(
         optimizer=Adamax(learning_rate=0.001),
         loss="categorical_crossentropy",
@@ -90,13 +90,37 @@ def _build_xception(tf):
     return model
 
 
+def _build_xception(tf):
+    base = tf.keras.applications.Xception(
+        input_shape=(299, 299, 3),
+        include_top=False,
+        weights=None,
+        pooling="max",
+    )
+    return _build_classifier_head(tf, base, (299, 299, 3))
+
+
+def _build_resnet(tf):
+    base = tf.keras.applications.ResNet50V2(
+        input_shape=(299, 299, 3),
+        include_top=False,
+        weights=None,
+        pooling="max",
+    )
+    return _build_classifier_head(tf, base, (299, 299, 3))
+
+
 def load_models() -> dict[str, bool]:
-    """Try to load both models. Returns a map of model_id -> loaded."""
-    global _xception_model, _cnn_model
+    """Try to load all three models. Returns a map of model_id -> loaded."""
+    global _xception_model, _resnet_model, _cnn_model
 
-    status = {"xception": False, "cnn": False}
+    status = {"xception": False, "resnet": False, "cnn": False}
 
-    if not _XCEPTION_WEIGHTS.exists() and not _CNN_MODEL.exists():
+    if not (
+        _XCEPTION_WEIGHTS.exists()
+        or _RESNET_WEIGHTS.exists()
+        or _CNN_MODEL.exists()
+    ):
         print(f"[inference] No weights found in {MODELS_DIR} - running in STUB mode.")
         return status
 
@@ -111,6 +135,15 @@ def load_models() -> dict[str, bool]:
         except Exception as exc:
             print(f"[inference] Failed to load Xception: {exc}")
 
+    if _RESNET_WEIGHTS.exists():
+        try:
+            print(f"[inference] Loading ResNet50V2 weights from {_RESNET_WEIGHTS}")
+            _resnet_model = _build_resnet(tf)
+            _resnet_model.load_weights(str(_RESNET_WEIGHTS))
+            status["resnet"] = True
+        except Exception as exc:
+            print(f"[inference] Failed to load ResNet: {exc}")
+
     if _CNN_MODEL.exists():
         try:
             print(f"[inference] Loading CNN model from {_CNN_MODEL}")
@@ -123,12 +156,18 @@ def load_models() -> dict[str, bool]:
 
 
 def models_loaded() -> dict[str, bool]:
-    return {"xception": _xception_model is not None, "cnn": _cnn_model is not None}
+    return {
+        "xception": _xception_model is not None,
+        "resnet": _resnet_model is not None,
+        "cnn": _cnn_model is not None,
+    }
 
 
 def _get_model(model_id: str):
     if model_id == "xception":
         return _xception_model, (299, 299)
+    if model_id == "resnet":
+        return _resnet_model, (299, 299)
     if model_id == "cnn":
         return _cnn_model, (224, 224)
     raise ValueError(f"unknown model_id: {model_id}")

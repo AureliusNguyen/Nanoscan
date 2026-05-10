@@ -85,6 +85,13 @@ def list_models() -> list[ModelInfo]:
             loaded=loaded["xception"],
         ),
         ModelInfo(
+            id="resnet",
+            name="ResNet50V2 (Transfer Learning)",
+            input_size=299,
+            description="ImageNet-pretrained ResNet50V2 backbone with the same classifier head as Xception.",
+            loaded=loaded["resnet"],
+        ),
+        ModelInfo(
             id="cnn",
             name="Custom CNN",
             input_size=224,
@@ -99,7 +106,7 @@ async def predict_route(
     image: UploadFile = File(...),
     model_id: str = Form(...),
 ) -> PredictionResponse:
-    if model_id not in {"xception", "cnn"}:
+    if model_id not in {"xception", "resnet", "cnn"}:
         raise HTTPException(400, f"unknown model_id: {model_id}")
     if image.content_type not in ALLOWED_MIME:
         raise HTTPException(415, f"unsupported image type: {image.content_type}")

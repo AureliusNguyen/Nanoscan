@@ -513,10 +513,15 @@ const NOTES: Note[] = [
           Trained for 5 epochs at 299x299.
         </p>
         <p>
+          <span className="font-display-italic">ResNet50V2:</span>{" "}
+          ImageNet-pretrained backbone using the same classifier head as
+          Xception, for a side-by-side architecture comparison at 299x299.
+        </p>
+        <p>
           <span className="font-display-italic">Custom CNN:</span> four
           conv-pool blocks (512, 256, 128, 64 filters) and a 256-unit dense head. Trained for 10 epochs at 224x224.
         </p>
-        <p>Both use the Adamax optimiser at learning rate 0.001.</p>
+        <p>All three use the Adamax optimiser at learning rate 0.001.</p>
       </>
     ),
   },
