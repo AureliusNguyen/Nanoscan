@@ -105,5 +105,5 @@ see `training/README.md` for the cells.
 | Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS v4, Fraunces + Geist |
 | Backend | FastAPI, Pydantic v2, Uvicorn |
 | ML | TensorFlow 2 (CPU), Keras, OpenCV, Pillow |
-| LLM | Google Gemini (gemini-1.5-flash) |
+| LLM | Google Gemini (gemini-2.5-flash) |
 | Hosting | Vercel (frontend), HuggingFace Spaces (backend) |

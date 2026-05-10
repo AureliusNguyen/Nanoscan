@@ -9,7 +9,9 @@ from dataclasses import dataclass
 from PIL import Image
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+# gemini-1.5-flash was retired from the public v1beta API; use the current
+# free-tier flash model. Override with the GEMINI_MODEL env var.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
 _genai = None
 _model = None

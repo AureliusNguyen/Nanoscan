@@ -20,7 +20,7 @@ export function ExplanationPanel({
           Reading the plate.
         </p>
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-2">
-          Gemini 1.5
+          Gemini 2.5
         </p>
       </div>
       <div className="mt-5 min-h-[120px] text-base leading-relaxed">

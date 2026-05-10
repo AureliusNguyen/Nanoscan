@@ -549,7 +549,7 @@ const NOTES: Note[] = [
         <p>
           Frontend in Next.js 15 (App Router, React 19) on Vercel. Python
           backend (FastAPI + TensorFlow) in a Docker container on HuggingFace
-          Spaces. Explanations from Google Gemini 1.5 Flash.
+          Spaces. Explanations from Google Gemini 2.5 Flash.
         </p>
       </>
     ),
