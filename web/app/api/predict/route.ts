@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const API_URL = process.env.API_URL || "http://localhost:8000";
+// Strip trailing slash and any accidental /predict suffix so misconfigured
+// env vars (e.g. "https://host/" or "https://host/predict") still work.
+const API_URL = (process.env.API_URL || "http://localhost:8000")
+  .replace(/\/+$/, "")
+  .replace(/\/predict$/, "");
 
 export async function POST(req: Request) {
   const form = await req.formData();

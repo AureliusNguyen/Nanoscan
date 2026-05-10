@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const API_URL = process.env.API_URL || "http://localhost:8000";
+// See note in /api/predict/route.ts -- defensive against trailing slash
+// or accidental /explain suffix in API_URL.
+const API_URL = (process.env.API_URL || "http://localhost:8000")
+  .replace(/\/+$/, "")
+  .replace(/\/explain$/, "");
 
 export async function POST(req: Request) {
   const body = await req.text();
