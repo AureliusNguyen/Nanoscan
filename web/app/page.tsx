@@ -562,7 +562,7 @@ const NOTES: Note[] = [
           better localisation, plus per-folder preprocessing audits to rule
           out the shortcut hypothesis. The takeaway for now: the classifier
           is accurate, but the attention maps should not be read as a
-          radiologist's reasoning.
+          radiologist&apos;s reasoning.
         </p>
       </>
     ),
