@@ -1,0 +1,5 @@
+# Drop trained model weight files here:
+#   xception.weights.h5  (from training/train_xception.py)
+#   cnn_model.h5         (from training/train_cnn.py)
+# This .gitkeep ensures the directory exists on a fresh clone so the API
+# can create paths under it without ENOENT.

@@ -1,0 +1,382 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap");
+@import "tailwindcss";
+
+/* ----------------------------------------------------------------------
+   Editorial Anatomical Atlas
+   Cream paper, deep warm ink, copper accent. Variable serif (Fraunces)
+   for display, neutral sans for body, mono only for technical readouts.
+   No glow effects, no aurora gradients, no scan-line on every surface --
+   one specimen viewer is the focal element.
+---------------------------------------------------------------------- */
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-copper: var(--copper);
+  --color-copper-2: var(--copper-2);
+  --color-cobalt: var(--cobalt);
+  --color-rust: var(--rust);
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+}
+
+:root {
+  /* Warm cream paper with controlled contrast */
+  --paper: oklch(0.965 0.012 78);
+  --paper-2: oklch(0.945 0.013 76);
+  --paper-3: oklch(0.92 0.014 75);
+
+  /* Deep warm ink */
+  --ink: oklch(0.18 0.018 60);
+  --ink-2: oklch(0.42 0.015 60);
+  --ink-3: oklch(0.62 0.012 65);
+
+  --rule: oklch(0.78 0.012 70);
+
+  /* Saturated copper for primary, deep cobalt as a rare second accent */
+  --copper: oklch(0.55 0.16 45);
+  --copper-2: oklch(0.66 0.16 50);
+  --cobalt: oklch(0.42 0.18 252);
+  --rust: oklch(0.5 0.2 27);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-rule);
+  }
+  html,
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: oklch(0.55 0.16 45 / 0.18);
+    color: var(--color-ink);
+  }
+  /* Subtle paper grain on the body. Done with a single SVG fragment. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.55;
+    mix-blend-mode: multiply;
+    z-index: 0;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 30, "WONK" 0;
+  }
+  .font-display-italic {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 60, "WONK" 1;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+
+  /* Editorial rule line, used for section dividers */
+  .rule-h {
+    height: 1px;
+    background: var(--color-ink);
+    opacity: 0.85;
+  }
+
+  /* Hairline divider in copper, used sparingly */
+  .rule-copper {
+    height: 1px;
+    background: var(--color-copper);
+    opacity: 0.75;
+  }
+
+  /* Surfaces: cream cards on slightly darker cream, with a single hairline */
+  .plate {
+    background: var(--color-paper-2);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+  }
+  .plate-tight {
+    background: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+  }
+
+  /* Specimen viewer frame -- a thin double border evoking museum plates */
+  .specimen-frame {
+    background: var(--color-paper);
+    border: 1px solid var(--color-ink);
+    box-shadow:
+      inset 0 0 0 6px var(--color-paper),
+      inset 0 0 0 7px var(--color-rule);
+    border-radius: var(--radius);
+  }
+
+  /* Buttons -- minimal, type-driven */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius);
+    padding: 0.65rem 1.1rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.875rem;
+    letter-spacing: 0.005em;
+    cursor: pointer;
+    transition: background 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-copper);
+    border-color: var(--color-copper);
+  }
+  .btn-primary:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+  .btn-quiet {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius);
+    padding: 0.65rem 1.1rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 220ms ease, color 220ms ease;
+  }
+  .btn-quiet:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-quiet:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Hover-only label, sits BELOW its trigger and never covers content */
+  .hover-label {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-2);
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity 220ms ease, transform 220ms ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .group:hover > .hover-label,
+  .group:focus-within > .hover-label,
+  *:hover > .hover-label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Smooth anchor scroll fallback (Safari before scroll-behavior support) */
+  .scroll-pad {
+    scroll-margin-top: 96px;
+  }
+
+  /* The single restrained scan-line, used only inside the specimen frame */
+  .scanlight {
+    position: relative;
+    overflow: hidden;
+  }
+  .scanlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      oklch(0.55 0.16 45 / 0.08) 50%,
+      transparent 100%
+    );
+    background-size: 100% 200%;
+    background-position: 0% -40%;
+    animation: scanlight 7s linear infinite;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+  @keyframes scanlight {
+    to {
+      background-position: 0% 140%;
+    }
+  }
+
+  /* Animated subtle entrance for hero text */
+  @keyframes lift {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .lift-1 {
+    animation: lift 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .lift-2 {
+    animation: lift 700ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+  }
+  .lift-3 {
+    animation: lift 700ms cubic-bezier(0.22, 1, 0.36, 1) 240ms both;
+  }
+  .lift-4 {
+    animation: lift 700ms cubic-bezier(0.22, 1, 0.36, 1) 360ms both;
+  }
+
+  /* ----------------------------------------------------------------------
+     Scroll-triggered reveals.
+     The Reveal component sets [data-reveal="in" | "out"] on its root and
+     [data-variant] for the flavor. CSS does the rest.
+  ---------------------------------------------------------------------- */
+
+  .reveal {
+    --rv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --rv-dur: 900ms;
+    will-change: opacity, transform, filter, font-variation-settings;
+  }
+
+  /* lift -- soft fade and 16px translate */
+  .reveal[data-variant="lift"] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity var(--rv-dur) var(--rv-ease),
+      transform var(--rv-dur) var(--rv-ease);
+  }
+  .reveal[data-variant="lift"][data-reveal="in"] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* rule -- a hairline scrubs across, then content lifts in */
+  .reveal[data-variant="rule"] {
+    position: relative;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 700ms var(--rv-ease) 250ms,
+      transform 700ms var(--rv-ease) 250ms;
+  }
+  .reveal[data-variant="rule"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;
+    height: 1px;
+    background: var(--color-ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1000ms var(--rv-ease);
+  }
+  .reveal[data-variant="rule"][data-reveal="in"] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal[data-variant="rule"][data-reveal="in"]::before {
+    transform: scaleX(1);
+  }
+
+  /* develop -- like a photograph emerging in chemicals */
+  .reveal[data-variant="develop"] {
+    opacity: 0;
+    transform: scale(1.03);
+    filter: blur(6px) brightness(1.4) contrast(0.7);
+    transition:
+      opacity 800ms var(--rv-ease),
+      transform 1200ms var(--rv-ease),
+      filter 1300ms var(--rv-ease);
+  }
+  .reveal[data-variant="develop"][data-reveal="in"] {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0) brightness(1) contrast(1);
+  }
+
+  /* type -- variable-font weight + softness animate in (Fraunces) */
+  .reveal[data-variant="type"] {
+    opacity: 0;
+    transform: translateY(8px);
+    font-variation-settings: "wght" 300, "SOFT" 100, "WONK" 0;
+    transition:
+      opacity 700ms var(--rv-ease),
+      transform 700ms var(--rv-ease),
+      font-variation-settings 900ms var(--rv-ease);
+  }
+  .reveal[data-variant="type"][data-reveal="in"] {
+    opacity: 1;
+    transform: translateY(0);
+    font-variation-settings: "wght" 500, "SOFT" 30, "WONK" 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal[data-variant] {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+    .reveal[data-variant="rule"]::before {
+      transform: scaleX(1) !important;
+      transition: none !important;
+    }
+  }
+
+  /* Scroll progress hairline at top of viewport */
+  .scroll-progress {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 2px;
+    width: var(--p, 0%);
+    background: var(--color-copper);
+    z-index: 60;
+    transition: width 120ms linear;
+    pointer-events: none;
+  }
+}
