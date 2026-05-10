@@ -26,7 +26,31 @@ from PIL import Image, UnidentifiedImageError
 Image.MAX_IMAGE_PIXELS = 50_000_000
 
 CLASSES = ["glioma", "meningioma", "notumor", "pituitary"]
-MODELS_DIR = Path(os.environ.get("MODELS_DIR", str(Path(__file__).parent / "models")))
+
+
+def _find_models_dir() -> Path:
+    """Pick where to look for .h5 weight files.
+
+    Resolution order:
+      1. MODELS_DIR env var if set (explicit override)
+      2. <api>/models/  if it exists and contains any .h5 files
+      3. <api>/         if any .h5 sit at the api root (handy on HF Spaces
+         where the Files tab drops files at the repo root by default)
+      4. fall back to <api>/models/ even if empty -- standard local layout
+    """
+    here = Path(__file__).parent
+    explicit = os.environ.get("MODELS_DIR")
+    if explicit:
+        return Path(explicit)
+    nested = here / "models"
+    if nested.exists() and any(nested.glob("*.h5")):
+        return nested
+    if any(here.glob("*.h5")):
+        return here
+    return nested
+
+
+MODELS_DIR = _find_models_dir()
 
 
 class InvalidImageError(ValueError):
