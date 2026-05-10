@@ -32,7 +32,7 @@ export function SaliencyView({ originalUrl, saliencyMapPngB64 }: SaliencyViewPro
           />
         </Plate>
       </div>
-      <p className="mt-5 max-w-2xl text-sm text-ink-2">
+      <p className="mt-5 text-sm text-ink-2">
         The right plate marks pixels with the strongest gradient with respect
         to the predicted class: the regions that swayed the prediction most.
         Read it as <span className="font-display-italic">where</span>, not{" "}

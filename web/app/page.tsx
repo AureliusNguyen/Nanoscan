@@ -543,6 +543,31 @@ const NOTES: Note[] = [
     ),
   },
   {
+    title: "Limitations",
+    body: (
+      <>
+        <p>
+          Test-set accuracy is high (&gt;99% on all three models). During
+          interpretability checks the saliency overlay sometimes attends to
+          cortical surface features even when predicting tumours that
+          anatomically live elsewhere. For example, pituitary lesions live
+          at the sella turcica, not the cortex. Two likely causes: vanilla
+          gradient saliency is noisy and biased toward high-frequency edges,
+          and per-class folders in the dataset may carry distinct
+          preprocessing artefacts that the network has learned as shortcuts
+          (a Clever Hans signal).
+        </p>
+        <p>
+          Useful next steps would be Grad-CAM or Integrated Gradients for
+          better localisation, plus per-folder preprocessing audits to rule
+          out the shortcut hypothesis. The takeaway for now: the classifier
+          is accurate, but the attention maps should not be read as a
+          radiologist's reasoning.
+        </p>
+      </>
+    ),
+  },
+  {
     title: "Stack",
     body: (
       <>
